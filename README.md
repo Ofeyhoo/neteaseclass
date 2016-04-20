@@ -1,2 +1,4 @@
-# newpage
-this is for creat a new page
+# 网易微专业大作业
+##待完善
+1. 页面元素错位严重（IE8）
+2. 未完全隔离作用域；
