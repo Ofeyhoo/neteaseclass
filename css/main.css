@@ -335,7 +335,6 @@ nav{
 }
 
 /* 主课程区的课程 */
-
 .c-main{
 	width:740px;
 }
@@ -407,10 +406,10 @@ nav{
 	position: absolute;
 	top:0;
 	left:0;
-	z-index:3;
+	z-index:1;
 	width:480px;
 	border:1px solid #D0CFD0;
-	box-shadow:1px 1px #EBEBEB,-1px -1px #E4E3E3;
+	box-shadow:1px 1px 3px #EBEBEB,-1px -1px 3px #E4E3E3;
 	color:#656565;
 	text-align:left;
 }
@@ -440,9 +439,7 @@ nav{
 }
 .m-hover-bottom{
 	overflow: hidden;
-	height:88px;
-	padding-left:21px;
-	padding-top: 10px;
+	padding:21px 15px;
 	line-height:22px;	
 	font-size:14px;
 	background:#F7F7F7;
