@@ -1,147 +1,21 @@
-
-// 设置和取得cookie信息封装
-function setCookie(name,value,iDay){
-    var oDate = new Date();
-    oDate.setDate(oDate.getDate()+iDay);
-    document.cookie = name+"="+value+";expires="+oDate;
-}
-
-function getCookie(name){
-	var arr = document.cookie.split("; "),
-	    length = arr.length,
-	    i;
-	for(i=0;i<length;i++){
-		var arr2 = arr[i].split("=");
-		if (arr2[0]== name) {
-			return arr2[1];
-		}
-	}
-    return "";
-}
-
-// 移除cookie信息
-function removeCookie(name){
-	setCookie(name,1,-1);
-}
-
-// ajax get方法的封装
-function get(url,options,callback){
-    var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
-    xhr.onreadystatechange = function(){
-        if(xhr.readyState == 4){
-            if((xhr.status >=200 && xhr.status <300) || xhr.status ==304){
-                var data = JSON.parse(xhr.responseText);
-                if(typeof callback == 'function'){
-					callback(data);
-					console.log("ok");
-				}
-            }else{
-                alert("请求错误："+xhr.status+" "+xhr.statusText);
-            }
-        }
-    }
-    xhr.open("GET",url+"?"+serialize(options),true);
-    xhr.send(null);
-}
- 
-
-function serialize(data){
-    if(!data) return '';
-    var pairs = [];
-    for(var name in data){
-        if(!data.hasOwnProperty(name)) continue;
-        if(typeof data[name] === 'function') continue;
-        var value = data[name].toString();
-        name = encodeURIComponent(name);
-        value = encodeURIComponent(value);
-        pairs.push(name + '=' + value);
-    }
-    return pairs.join('&');
-}
-
-// 暴露num号节点，隐藏组内其他节点
-function displayOne(num,eleList,displayStyle){
-	for(var i=0;i<eleList.length;i++){
-	    eleList[i].style.display = "none";
-	};
-	eleList[num].style.display = displayStyle;
-};
-
-// 激活当前节点，其余节点处于非激活状态
-function activeOne(actEle,actStr,ele,str){
-	for(var i=0;i<ele.length;i++){
-		ele[i].className = str;
-	}
-	actEle.className = actEle.className + actStr;
-};
-
-		
-// 判断某个字符串在另一个字符串的位置
-function Index(str1,str2){
-   var s = str1.indexOf(str2);
-   return(s);
-}
-
-
-// 获取激活节点值
-function getActivePage(eleList,activeStr){
-	for(var i=0;i<eleList.length;i++){
-		var str = eleList[i].className;
-		var result = Index(str,activeStr)
-		if(result >= 0){
-			return eleList[i].innerHTML;
-		}
-	};
-}
-
-// 移除所有相关子节点
-function removeAll(ele,eleParent){
-	if(ele.length&&ele.length!=0){
-		for(var i=0;i<ele.length;i++){
-			eleParent.removeChild(ele[i]);
-		}                        
-	} 
-}
-
-// 生成节点
-function createNode(ele,innerHTML,className){
-	var newNode = document.createElement(ele);
-	newNode.innerHTML = innerHTML;
-	newNode.className = className;
-	return newNode;
-}
-
-// 设置时间格式
-function getTime (time) {
-    time = Math.ceil(time);
-    var min = parseInt(time/60);
-    min = min < 10 ? '0' + min:min;
-    var snd = time%60;
-    snd = snd < 10 ? '0' + snd:snd;
-    return min + ':' + snd;
-}
-
-
-
 // 头部通知条
 (function popClose(){
-	var pop = document.querySelector('#pop'),
+    var pop = document.querySelector('#pop'),
         popclose = pop.querySelector('.pop-close');
             
     // 读取cookie
-	var res=getCookie("name");
+    var res=util.getCookie("name");
 
     // 判断是否点击过关闭按钮
     if( res != "pop"){
-    	popclose.onclick = function(){
-    		pop.style.display="none";
-    		setCookie("name","pop",3000);
-    	}
+        popclose.onclick = function(){
+            pop.style.display="none";
+            util.setCookie("name","pop",3000);
+        }
     }else{
-    	pop.style.display="none";
+        pop.style.display="none";
     }
 })();
-
 
 
 // 轮播图
@@ -224,8 +98,8 @@ function getTime (time) {
         name = login.elements['userName'],
 	    password = login.elements['password'],
 	    alert = login.querySelector(".login-alert"),
-	    loginSuc = getCookie("login"),
-	    followSuc = getCookie("follow");
+	    loginSuc = util.getCookie("login"),
+	    followSuc = util.getCookie("follow");
     
     // 判断有无登录cookie
     if(!loginSuc){
@@ -294,11 +168,11 @@ function getTime (time) {
     function loginRes(data){
 	   if (data==1) {
 		   	// 设置登录cookie
-		   	setCookie("login","loginSuc",12);
+		    util.setCookie("login","loginSuc",12);
 		   	//移除登录框和遮罩
 		    removeLogin();
 		   	// 设置关注
-		   	get('http://study.163.com/webDev/attention.htm','',	likeRes)
+		   	util.get('http://study.163.com/webDev/attention.htm','',	likeRes)
 	   }
 	   else{   
 	   	   alert.style.display="block";
@@ -309,8 +183,8 @@ function getTime (time) {
 	function likeRes(data){
 		if(data && data==1){
 			// 设置关注成功cookie
-			setCookie("follow","followSuc",12);
-			console.log(getCookie("follow"));
+			util.setCookie("follow","followSuc",12);
+			console.log(util.getCookie("follow"));
 
 			// 设置页面的样式
 			follow.className = "nav-liked";
@@ -336,7 +210,7 @@ function getTime (time) {
 		var loginUrl = "http://study.163.com/webDev/login.htm";
 	    options = {userName:md5(name.value),password:md5(password.value)};
 
-        get(loginUrl,options,loginRes);
+        util.get(loginUrl,options,loginRes);
     };
 
 	// 取消like函数
@@ -344,7 +218,7 @@ function getTime (time) {
 		follow.className = "nav-unliked";
 		followBg.className = "nav-unliked-bg";
 		follow.removeChild(cancel);
-		removeCookie("follow");
+		util.removeCookie("follow");
 	}
 })();
 
@@ -387,11 +261,11 @@ function getTime (time) {
         	(function(_i){
     	        ele[_i].onclick = function(){
     	            // 显示当前页面课程
-    	        	displayOne(_i,courseGroup,"block");
+    	        	util.displayOne(_i,courseGroup,"block");
     	        	// 显示当前页面
-    	        	displayOne(_i,pageNumGroup,"inline-block");
+    	        	util.displayOne(_i,pageNumGroup,"inline-block");
     	        	// 激活当前页面title
-    	        	activeOne(ele[_i]," m-tit-act",ele,"m-tit");
+    	        	util.activeOne(ele[_i]," m-tit-act",ele,"m-tit");
     	        	// 获取页面内容
     	        	getClasses(_i+1,courseGroup[_i],1)
     	        	//生成page
@@ -405,7 +279,7 @@ function getTime (time) {
     // 获取课程内容函数
 	function getClasses(num,courseList,pageNow){
 		var option = {pageNo:pageNow,psize:pSize,type:num*10};
-		get(url,option,	function(data){        
+		util.get(url,option,	function(data){        
             createClass(data,courseList);
 		});
 	}; 
@@ -413,7 +287,7 @@ function getTime (time) {
     // 获取页码内容函数
 	function getPages(num,pageList,pageNow,courseList){
 		var option = {pageNo:pageNow,psize:pSize,type:num*10};
-		get(url,option,	function(data){        
+		util.get(url,option,	function(data){        
             createPage(data,pageList,courseList,num);
 		});
 	}; 
@@ -461,11 +335,11 @@ function getTime (time) {
     	var length = data.totalPage;
     	pageList.innerHTML = "";
     	for(var i=0;i<length;i++){
-    		var newPage = createNode("span",i+1,"page-num")
+    		var newPage = util.createNode("span",i+1,"page-num")
     		pageList.appendChild(newPage);
     	}
     	var pageNum = pageList.querySelectorAll(".page-num");
-    	activeOne(pageNum[0]," on",pageNum,"page-num");
+    	util.activeOne(pageNum[0]," on",pageNum,"page-num");
     	changePage(data,pageList);
     	clickPageNum(data,pageList,courseList,num);
     	clickPageIcon(data,pageList,courseList,num);
@@ -487,7 +361,7 @@ function getTime (time) {
 	                getClasses(num,courseList,pageNow);
 
 	    			// 当前页码的className为on，其余节点的on去掉  			
-	                activeOne(pageNum[_i]," on",pageNum,"page-num");
+	                util.activeOne(pageNum[_i]," on",pageNum,"page-num");
 
 	                //根据active的位置，调整页面的显示
 	                changePage(data,pageList);
@@ -502,14 +376,14 @@ function getTime (time) {
         var totalPage = data.totalPage; 
         var pageNum = pageList.querySelectorAll(".page-num");    
         pagePre.onclick = function(){
-        	var active = getActivePage(pageNum,"on");
+        	var active = util.getActivePage(pageNum,"on");
         	if(active>1){
 	            clickIcon(active-2,data,pageList,courseList,num);
         	}
             return false;
         }
         pageNext.onclick = function(){
-        	var active = getActivePage(pageNum,"on");
+        	var active = util.getActivePage(pageNum,"on");
         	if(active<totalPage){
 	            clickIcon(active,data,pageList,courseList,num);
         	}
@@ -521,11 +395,11 @@ function getTime (time) {
     function clickIcon(nextPageNum,data,pageList,courseList,num){
     	var pageNum = pageList.querySelectorAll(".page-num");
         // 改变actived的节点位置
-		activeOne(pageNum[nextPageNum]," on",pageNum,"page-num");         
+		util.activeOne(pageNum[nextPageNum]," on",pageNum,"page-num");         
         // 改变页面的显示方式
 		changePage(data,pageList)
         // 重新获取节点的位置
-		active = getActivePage(pageNum,"on");
+		active = util.getActivePage(pageNum,"on");
 		// 获取当页课程内容
         getClasses(num,courseList,active);
     }
@@ -534,10 +408,10 @@ function getTime (time) {
     function changePage(data,pageList){
     	var totalPage = data.totalPage;
     	var pageNum = pageList.querySelectorAll(".page-num");
-    	var active = Number(getActivePage(pageNum,"on"));
+    	var active = Number(util.getActivePage(pageNum,"on"));
 
         // 生成省略号
-    	var newPage1 = createNode("span","...","ellipsis");
+    	var newPage1 = util.createNode("span","...","ellipsis");
     	var ellipsis = pageList.querySelectorAll(".ellipsis");
 		// 第一页和最后一页时按钮是不可点击状态
 		if(active==1){
@@ -566,7 +440,7 @@ function getTime (time) {
 	        		for(var i=8;i<totalPage;i++){
 	        			pageNum[i].style.display = "none";
 	        		}
-	        		removeAll(ellipsis,pageList);
+	        		util.removeAll(ellipsis,pageList);
 	        		pageList.insertBefore(newPage1,pageNum[8]);     		
 	        	}else if(active>3){
 	        		// 如果active大于3，显示active的前后四页，后面多出来的用省略号代替
@@ -576,12 +450,12 @@ function getTime (time) {
 	        		for(var i=active+4;i<totalPage;i++){
 	        			pageNum[i].style.display = "none";
 	        		}
-	        		removeAll(ellipsis,pageList);
+	        		util.removeAll(ellipsis,pageList);
 	        		pageList.insertBefore(newPage1,pageNum[active+4]);
 	        	}
 	        }else if(active+4>=totalPage){
 	        	// 如果active后面不足四页，则后面不需要用省略号
-                removeAll(ellipsis,pageList);
+                util.removeAll(ellipsis,pageList);
 	        	for(var i=0;i<totalPage;i++){
 	        		pageNum[i].style.display = "inline-block";
 	        	}
@@ -593,7 +467,7 @@ function getTime (time) {
 	    		for(var i=2;i<active-5;i++){
 	    			pageNum[i].style.display = "none";
 	    		}
-	    		var newPage2 = createNode("span","...","ellipsis");
+	    		var newPage2 = util.createNode("span","...","ellipsis");
 	    		pageList.insertBefore(newPage2,pageNum[2]);
 	    	}
 	    }
@@ -609,7 +483,7 @@ function getTime (time) {
     getHotCourse();
 
     function getHotCourse(){
-        get(url,"",function(data){
+        util.get(url,"",function(data){
             setHotCourse(data);  
         });
         setInterval(displayHotCourse,5000);
@@ -716,10 +590,10 @@ function getTime (time) {
    
     // 视屏播放时，时间和进度条设置
     video.oncanplay = function() {
-        duration.innerHTML =  getTime(video.duration);
+        duration.innerHTML =  util.getTime(video.duration);
 
         setInterval(function() {
-           crtTime.innerHTML = getTime(video.currentTime);
+           crtTime.innerHTML = util.getTime(video.currentTime);
            progressBuffer.style.width = video.buffered.end(0)/video.duration*890 + 'px';
            progressBox.style.width = video.currentTime/video.duration*890 + 'px';
            playProgress.style.left = video.currentTime/video.duration*890 -4 + 'px';
@@ -746,7 +620,6 @@ function getTime (time) {
             icon.className = "paused";
         }       
     }
-
 })();
 
 
